@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import argparse
 
 class Commander:
 
@@ -142,15 +143,46 @@ class Commander:
             print("Flash successful")
             return True
 
-# def main():
-#     commander = Commander()
-#     commander.erase("440265308")
-#     commander.reset("440265308")
-#     commander.set_region("440265308", "us_lr")
-#     commander.get_region("440265308")
-#     commander.flash("440265308", "C:/Users/tastumme/Desktop/z-wave/demos/zwave_soc_power_strip/zwave_soc_power_strip-brd4205b-eu.hex")
-#     commander.get_dsk("440265308")
-#     commander.get_qr("440265308")
+def main():
+    parser = argparse.ArgumentParser(description="Commander Script")
+    parser.add_argument("command", choices=["reset", "erase", "set_region", "get_region", "get_dsk", "get_qr", "flash"])
+    parser.add_argument("serialno", help="Serial number of the device")
+    parser.add_argument("--region", help="Region code for setting region", default=None)
+    parser.add_argument("--hex_file_path", help="Path to the hex file for flashing", default=None)
 
-# if __name__ == "__main__":
-#     main()
+    args = parser.parse_args()
+
+    commander = Commander()
+
+    if args.command == "reset":
+        commander.reset(args.serialno)
+    elif args.command == "erase":
+        commander.erase(args.serialno)
+    elif args.command == "set_region":
+        if args.region:
+            commander.set_region(args.serialno, args.region)
+        else:
+            print("Region not provided for set_region command")
+    elif args.command == "get_region":
+        commander.get_region(args.serialno)
+    elif args.command == "get_dsk":
+        commander.get_dsk(args.serialno)
+    elif args.command == "get_qr":
+        commander.get_qr(args.serialno)
+    elif args.command == "flash":
+        if args.hex_file_path:
+            commander.flash(args.serialno, args.hex_file_path)
+        else:
+            print("Hex file path not provided for flash command")
+
+if __name__ == "__main__":
+    main()
+
+# Example calls
+# python commander_script.py reset       your_serial_number
+# python commander_script.py erase       your_serial_number
+# python commander_script.py set_region  your_serial_number --region us
+# python commander_script.py get_region  your_serial_number
+# python commander_script.py get_dsk     your_serial_number
+# python commander_script.py get_qr      your_serial_number
+# python commander_script.py flash       your_serial_number --hex_file_path your_hex_file_path
